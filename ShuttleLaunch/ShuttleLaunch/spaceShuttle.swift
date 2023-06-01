@@ -69,6 +69,6 @@ class spaceShuttle: SKSpriteNode{
 
     func moveShuttle(force:CGFloat){
         vector = CGVectorMake(0, force/4*3)
-        self.physicsBody?.applyImpulse(vector)
+        self.physicsBody?.applyForce(vector)
     }
 }
