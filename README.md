@@ -1,17 +1,9 @@
 # ShuttleLaunch
-Incorporating Doodle Jump with force touch on iPhones
-
-Tap and press/hold to launch and increase acceleration of the space shuttle.  
-Land on platforms to complete checkpoints.  
-Avoid obstacles in the way before making it to the wormhole at the top!  
-
-
-# ShuttleLaunch
 ### **Demo:**
-<img width="407" alt="Starting the game" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/a323eac2-2f55-4442-85c1-6fb5f6e83d7b">
-<img width="407" alt="Platform and collision objects" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/e556826e-bfb9-4aa7-916e-9f7c5afc3350">
-<img width="409" alt="End game" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/c43ae332-9b89-4f28-8e05-f017daae37c1">
-<img width="406" alt="Game over scene" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/c4d4c5d6-cab3-4fac-bfb3-8ff0b52258ec">
+<img width="200" alt="Starting the game" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/a323eac2-2f55-4442-85c1-6fb5f6e83d7b">
+<img width="200" alt="Platform and collision objects" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/e556826e-bfb9-4aa7-916e-9f7c5afc3350">
+<img width="200" alt="End game" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/c43ae332-9b89-4f28-8e05-f017daae37c1">
+<img width="200" alt="Game over scene" src="https://github.com/joeykyleung/ShuttleLaunch/assets/77413460/c4d4c5d6-cab3-4fac-bfb3-8ff0b52258ec">
 
 &nbsp;
 ### **Description:**
