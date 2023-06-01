@@ -28,7 +28,6 @@ class GameScene: SKScene {
     var scoreLabel:SKLabelNode!
     var heightLabel:SKLabelNode!
     var gravityLabel:SKLabelNode!
-    var speedLabel:SKLabelNode!
     let font = "Arial"
     var startScreen:background?
     var startLabel:SKLabelNode!
@@ -116,26 +115,22 @@ class GameScene: SKScene {
         scoreLabel = SKLabelNode(fontNamed: font)
         scoreLabel.text = "Score: 0"
         scoreLabel.fontSize = 20
-        scoreLabel.position = CGPointMake(self.frame.maxX/2-110, self.frame.maxY-50)
+        scoreLabel.position = CGPointMake(self.frame.maxX/2+110, self.frame.maxY-40)
         scoreLabel.zPosition = 4
         
         heightLabel = SKLabelNode(fontNamed: font)
+        heightLabel.horizontalAlignmentMode = .left
         heightLabel.text = "3.2.1..."
         heightLabel.fontSize = 20
-        heightLabel.position = CGPointMake(self.frame.maxX/2+115, self.frame.maxY-50)
+        heightLabel.position = CGPointMake(self.frame.maxX/2-155, self.frame.maxY-40)
         heightLabel.zPosition = 4
         
         gravityLabel = SKLabelNode(fontNamed: font)
-        gravityLabel.text = "Gravity: \(abs(round(self.physicsWorld.gravity.dy * 100) / 100))"
+        gravityLabel.horizontalAlignmentMode = .left
+        gravityLabel.text = "Gravity: \(String(format: "%.2f", abs(self.physicsWorld.gravity.dy)))"
         gravityLabel.fontSize = 20
-        gravityLabel.position = CGPointMake(self.frame.maxX/2+110, self.frame.maxY-80)
+        gravityLabel.position = CGPointMake(self.frame.maxX/2-155, self.frame.maxY-70)
         gravityLabel.zPosition = 4
-        
-        speedLabel = SKLabelNode(fontNamed: font)
-        speedLabel.text = "Speed: \(round((shuttleNode!.physicsBody?.velocity.dy)!))"
-        speedLabel.fontSize = 20
-        speedLabel.position = CGPointMake(self.frame.maxX/2+115, self.frame.maxY-110)
-        speedLabel.zPosition = 4
         
         startScreen = background(imageNamed: "gray")
         startScreen!.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame));
@@ -162,14 +157,12 @@ class GameScene: SKScene {
         addChild(scoreLabel)
         addChild(heightLabel)
         addChild(gravityLabel)
-        addChild(speedLabel)
         addChild(startScreen!)
         addChild(startLabel)
     }
     
     override func update(_ currentTime: CFTimeInterval) {
-        gravityLabel.text = "Gravity: \(abs(round(self.physicsWorld.gravity.dy * 100) / 100))"
-        speedLabel.text = "Speed: \(round((shuttleNode!.physicsBody?.velocity.dy)!))"
+        gravityLabel.text = "Gravity: \(String(format: "%.2f", abs(self.physicsWorld.gravity.dy)))"
         
         shuttle_exhaust.position = CGPointMake(shuttleNode!.position.x - 13, shuttleNode!.position.y - 40)
         shuttle_exhaust.isHidden = !held || startLabel.isHidden == false
@@ -280,32 +273,54 @@ class GameScene: SKScene {
         if shuttleNode!.position.y - launchPad!.position.y > 200 {
             shuttleNode!.position.x = touch.location(in: self.view).x + 320
         }
-//        print(bgImage!.position.y)
-//        print(shuttleNode!.physicsBody!.velocity.dy)
         
-        //refactor below code and change gravity so it keeps increasing, fix ending position of bg
         func calc_force (force: CGFloat) -> CGFloat {
+            struct data {
+                var stage: String
+                var factor: CGFloat
+                var y: CGFloat
+                var grav: CGVector
+            }
+            let min_force: CGFloat = 10
+            let launch_start = data(stage: "Launching", factor: 1, y: 1100, grav: CGVectorMake(0, -9.81))
+            let earth_start = data(stage: "Earth", factor: 10, y: 500, grav: CGVectorMake(0, -9.81))
+            let space_start = data(stage: "Space", factor: 18, y: -300, grav: CGVectorMake(0, -2))
+            let outer_start = data(stage: "Outer Space", factor: 20, y: -500, grav: CGVectorMake(0, 0))
             var new_force = force
-            if(bgImage!.position.y > 1100){
-                heightLabel.text = ("Launching")
+            
+            if(bgImage!.position.y > launch_start.y){
+                let t = (bgImage!.position.y - launch_start.y) / (earth_start.y - launch_start.y)
+                new_force /= (1 - t) * min_force
+                
+                heightLabel.text = launch_start.stage
                 launchPad!.position = CGPointMake(560, 0)
-            } else if (bgImage!.position.y > 500){
-                new_force /= 10
-                heightLabel.text = ("Earth")
+            } else if (bgImage!.position.y > earth_start.y){
+                let t = (bgImage!.position.y - earth_start.y) / (launch_start.y - earth_start.y)
+                let diff: CGFloat = earth_start.factor - min_force
+                new_force /= (min_force + (1 - t) * diff)
+                
+                self.physicsWorld.gravity.dy = earth_start.grav.dy + (1 - t) * (space_start.grav.dy - earth_start.grav.dy)
+                heightLabel.text = earth_start.stage
                 launchPad!.position = CGPointMake(500, -100)
-            } else if (bgImage!.position.y > -300){
-                new_force /= 12
-                self.physicsWorld.gravity = CGVectorMake(0, -2)
+            } else if (bgImage!.position.y > space_start.y){
+                let t = (bgImage!.position.y - space_start.y) / (earth_start.y - space_start.y)
+                let diff: CGFloat = space_start.factor - min_force
+                new_force /= (min_force + (1 - t) * diff)
+                
+                self.physicsWorld.gravity.dy = space_start.grav.dy + (1 - t) * (outer_start.grav.dy - space_start.grav.dy)
                 heightLabel.text = ("Space")
-            } else if (bgImage!.position.y > -500){
-                new_force /= 15
+            } else if (bgImage!.position.y > outer_start.y){
+                let t = (bgImage!.position.y - outer_start.y) / (space_start.y - outer_start.y)
+                let diff: CGFloat = outer_start.factor - min_force
+                new_force /= (min_force + (1 - t) * diff)
+                
                 self.physicsWorld.gravity = CGVectorMake(0, 0)
                 heightLabel.text = ("Outer Space")
             }
-            print(new_force, bgImage!.position.y)
             return new_force
         }
-        bgImage!.dy = calc_force(force: force)
+        
+        bgImage!.dy = heightLabel.text == "Launching" ? calc_force(force: force) : calc_force(force: force) / 4
         
         for checkpoint in checkpointNode{
             checkpoint.dy = calc_force(force: force)
